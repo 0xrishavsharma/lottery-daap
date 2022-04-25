@@ -1,0 +1,12 @@
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.4.0
+  - smartcontractkit/chainlink@1.3.0
+compiler:
+  solc:
+    remappings:
+      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.4.0'
+      - '@chainlink=smartcontractkit/chainlink@1.3.0'
+
+networks:
+  mainnet-fork: 
+    eth_usd_price_feed: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419'
