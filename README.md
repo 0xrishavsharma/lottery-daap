@@ -1,6 +1,6 @@
 # Smart Contract Lottery
 
-### A decentralized lottery application that anyone can enter with a minimum entrance fee and a random person is selected who wins the lottery. It is like a traditional lottery but in decentralized way. So, there is no way anyone could get some advantage (You see the advantage of Decentralization?).
+A decentralized lottery application that anyone can enter with a minimum entrance fee and a random person is selected who wins the lottery. It is like a traditional lottery but in decentralized way. So, there is no way anyone could get some advantage (You see the advantage of Decentralization?).
 
 #### How this DApp works?
     1. Use enters the lottery with an entry price in Ethereum based on USD Fee.
