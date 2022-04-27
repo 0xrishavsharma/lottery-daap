@@ -1,11 +1,13 @@
 dependencies:
   - OpenZeppelin/openzeppelin-contracts@4.4.0
   - smartcontractkit/chainlink@1.3.0
+  - smartcontractkit/chainlink-brownie-contracts@0.4.0
 compiler:
   solc:
     remappings:
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.4.0'
       - '@chainlink=smartcontractkit/chainlink@1.3.0'
+      - '@chainlink-brownie-contracts=smartcontractkit/chainlink-brownie-contracts@0.4.0'
 
 networks:
   mainnet-fork: 
