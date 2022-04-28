@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@chainlink-brownie-contracts/contracts/src/v0.8/VRFConsumerBase.sol";
 
-contract Lottery is Ownable, VRFConsumerBase {
+contract SmartLottery is Ownable, VRFConsumerBase {
 
     address payable[] public players; // List of participants who are participating
     uint256 public entryFeeUsd;
@@ -17,17 +17,21 @@ contract Lottery is Ownable, VRFConsumerBase {
     }
     LOTTERY_STATE public lottery_state;
     uint public fee = 0.1 * 10 ** 18;
+    bytes32 public keyhash;
+    address payable public recentWinner;
+    uint public recentRandomness;
     
     // We are changing the fee because while interacting with different networks the fee might be different so we'll updated that
     // while deploying the contract
-    constructor(address _priceFeedAddress, address _vrfCoordinator, address _link, uint256 _fee, string memory _keyhash)
+    constructor(address _priceFeedAddress, address _vrfCoordinator, address _link, uint256 _fee, bytes32 _keyhash)
      public
      VRFConsumerBase(_vrfCoordinator, _link)
      {
         entryFeeUsd  = 50 * (10 ** 18);
         ethUsdPriceFeed = AggregatorV3Interface(_priceFeedAddress);
         lottery_state = LOTTERY_STATE.CLOSED;
-        fee=_fee;
+        fee = _fee;
+        keyhash = _keyhash;
     }
 
     function enter() public payable{
@@ -65,9 +69,27 @@ contract Lottery is Ownable, VRFConsumerBase {
     //     ) % players.length;
     // }
 
-    // Keyhash uniquely identifies the Chainlink node we are going to use to get our random number
-    function endLottery(string memory keyhash) public onlyOwner{
+
+    // While requesting a random number from the VRF we create two transactions. First we request and second we recieve.
+    // Keyhash uniquely identifies the Chainlink VRF node we are going to use to get our random number
+    function endLottery(bytes32 keyhash) public onlyOwner{
         lottery_state = LOTTERY_STATE.CALCULATING_WINNER;
-        requestId = requestRandomness(keyhash, fee);
+        bytes32 requestId = requestRandomness(keyhash, fee);
     }
+
+    function fulfillRandomness( bytes32 _requestId, uint256 _randomness)
+    internal override
+    {
+        require(lottery_state == LOTTERY_STATE.CALCULATING_WINNER, "You aren't there yet!");
+        require(_randomness > 0, "Error: random-not-found. The number is not random");
+        uint256 indexOfWinner = (_randomness % players.length);
+        recentWinner = players[indexOfWinner];
+        // Transferring all the money that this contract has collected to the lottery winner
+        recentWinner.transfer(address(this).balance);
+
+        // Resetting the lottery 
+        players = new address payable[](0);
+        lottery_state = LOTTERY_STATE.CLOSED;
+        recentRandomness = _randomness;
+    } 
 }
